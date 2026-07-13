@@ -3,123 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Doge Defender 🐕🚀</title>
+  <title>Doge Pac-Man 🐕🍖</title>
   <style>
     body { margin:0; background:#000; color:#fff; font-family:'Press Start 2P', cursive; text-align:center; }
-    canvas { image-rendering: pixelated; border: 6px solid #ffcc00; margin:15px auto; display:block; }
-    h1 { color:#ffcc00; text-shadow:0 0 20px #ffcc00; margin:10px; }
-    .info { font-size:1.3rem; color:#00ffcc; margin:5px; }
-    button { padding:12px 32px; margin:8px; font-size:1.2rem; background:#ffcc00; color:black; border:none; cursor:pointer; }
+    canvas { image-rendering: pixelated; border: 8px solid #ffcc00; margin:20px auto; display:block; background:#000; }
+    h1 { color:#ffcc00; text-shadow:0 0 20px #ffcc00; }
+    button { padding:15px 40px; margin:10px; font-size:1.3rem; background:#ffcc00; color:black; border:none; cursor:pointer; }
   </style>
 </head>
 <body>
-  <h1>DOGE DEFENDER 🐕🚀</h1>
-  <div class="info">Score: <span id="score">0</span> | High: <span id="high">0</span></div>
-  <canvas id="game" width="640" height="520"></canvas><br>
-  <button onclick="startGame()">🚀 NEW GAME</button>
+  <h1>DOGE PAC-MAN 🐕</h1>
+  <div>Score: <span id="score">0</span> | High: <span id="high">0</span></div>
+  <canvas id="game" width="560" height="620"></canvas><br>
+  <button onclick="startGame()">NEW GAME</button>
   <button onclick="sendTip()">💰 TIP THE DOGE</button>
 
   <script>
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
     let score = 0;
-    let highScore = localStorage.getItem('dogeHigh') || 0;
+    let highScore = localStorage.getItem('dogePacHigh') || 0;
     document.getElementById('high').textContent = highScore;
-
-    let dogeX = 290;
-    let bullets = [];
-    let enemies = [];
-    let gameRunning = false;
-    let speedMultiplier = 1;
 
     const dogeAddress = "D5z8yM7E4hqKKSeota4K6PwictgtW7nprJ";
 
+    let x = 280, y = 460, dir = 'right';
+    let scoreVal = 0;
+
     function startGame() {
-      score = 0;
-      bullets = [];
-      enemies = [];
-      speedMultiplier = 1;
-      gameRunning = true;
+      scoreVal = 0;
       document.getElementById('score').textContent = 0;
+      alert("Use Arrow Keys to move Doge!\nEat the coins! 🐕");
       gameLoop();
     }
 
     function sendTip() {
-      alert(`💰 Thanks for playing!\n\nTip address:\n${dogeAddress}\n\nMuch wow! 🐕`);
+      alert(`Thanks for playing Doge Pac-Man!\n\n${dogeAddress}`);
       navigator.clipboard.writeText(dogeAddress);
     }
 
     function gameLoop() {
-      if (!gameRunning) return;
-
-      ctx.fillStyle = '#0a001f';
+      ctx.fillStyle = '#000033';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Maze walls (simple)
+      ctx.fillStyle = '#00f';
+      ctx.fillRect(40, 40, 480, 20);
+      ctx.fillRect(40, 560, 480, 20);
 
       // Doge
       ctx.fillStyle = '#ffcc00';
-      ctx.fillRect(dogeX, 440, 70, 50);
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(dogeX+20, 425, 35, 25);
+      ctx.beginPath();
+      ctx.arc(x, y, 18, 0, Math.PI*2);
+      ctx.fill();
 
-      // Bullets
-      bullets.forEach((b, i) => {
-        b.y -= 12;
-        ctx.fillStyle = '#00ffff';
-        ctx.fillRect(b.x, b.y, 8, 25);
-        if (b.y < 0) bullets.splice(i,1);
-      });
-
-      // Enemies
-      if (Math.random() < 0.04) {
-        enemies.push({x: Math.random() * 580, y: 0, speed: 3 + speedMultiplier});
+      // Coins
+      ctx.fillStyle = '#ff0';
+      for (let i = 0; i < 8; i++) {
+        ctx.fillRect(80 + i*60, 200, 12, 12);
       }
 
-      enemies.forEach((e, i) => {
-        e.y += e.speed;
-        ctx.fillStyle = '#ff3366';
-        ctx.fillRect(e.x, e.y, 45, 35);
-        ctx.fillStyle = '#fff';
-        ctx.font = '20px Arial';
-        ctx.fillText('🚀', e.x+10, e.y+28);
+      // Movement
+      if (dir === 'right') x += 4;
+      if (dir === 'left') x -= 4;
+      if (dir === 'up') y -= 4;
+      if (dir === 'down') y += 4;
 
-        // Collision with bullets
-        bullets.forEach((b, j) => {
-          if (b.x > e.x && b.x < e.x+45 && b.y > e.y && b.y < e.y+35) {
-            bullets.splice(j,1);
-            enemies.splice(i,1);
-            score += 20;
-            document.getElementById('score').textContent = score;
-            if (score % 200 === 0) speedMultiplier += 0.3; // Increase difficulty
-          }
-        });
+      // Score
+      scoreVal += 1;
+      document.getElementById('score').textContent = scoreVal;
 
-        if (e.y > 480) {
-          gameRunning = false;
-          if (score > highScore) {
-            highScore = score;
-            localStorage.setItem('dogeHigh', highScore);
-            document.getElementById('high').textContent = highScore;
-          }
-          alert(`💥 Game Over!\nScore: ${score}\n\nTip the Doge to defend again? 🐕`);
-        }
-      });
+      if (scoreVal > highScore) {
+        highScore = scoreVal;
+        localStorage.setItem('dogePacHigh', highScore);
+        document.getElementById('high').textContent = highScore;
+      }
 
       requestAnimationFrame(gameLoop);
     }
 
-    // Keyboard Controls
     document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowLeft' || e.key === 'a') dogeX -= 35;
-      if (e.key === 'ArrowRight' || e.key === 'd') dogeX += 35;
-      if (e.key === ' ' || e.key === 'Enter') bullets.push({x: dogeX + 30, y: 430});
-    });
-
-    // Mouse / Touch Controls
-    canvas.addEventListener('mousemove', e => {
-      dogeX = e.offsetX - 35;
-    });
-    canvas.addEventListener('touchmove', e => {
-      dogeX = e.touches[0].clientX - canvas.offsetLeft - 35;
+      if (e.key === 'ArrowRight') dir = 'right';
+      if (e.key === 'ArrowLeft') dir = 'left';
+      if (e.key === 'ArrowUp') dir = 'up';
+      if (e.key === 'ArrowDown') dir = 'down';
     });
   </script>
 </body>
