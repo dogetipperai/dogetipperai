@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DogeTipper AI 🐕💰</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    
+    body {
+      font-family: 'Press Start 2P', system-ui;
+      background: linear-gradient(135deg, #0a0a1f, #1a0033);
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 3.2rem;
+      margin: 0 0 10px 0;
+      color: #ffcc00;
+      text-shadow: 0 0 20px #ffcc00;
+    }
+    .tagline {
+      font-size: 1.3rem;
+      color: #00ffcc;
+      margin-bottom: 40px;
+    }
+    textarea {
+      width: 100%;
+      height: 140px;
+      padding: 20px;
+      font-size: 1.1rem;
+      border-radius: 16px;
+      border: 4px solid #ffcc00;
+      background: #111133;
+      color: white;
+      resize: vertical;
+      margin-bottom: 25px;
+    }
+    button {
+      padding: 16px 40px;
+      font-size: 1.3rem;
+      font-family: 'Press Start 2P', system-ui;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      margin: 10px;
+      transition: all 0.3s;
+    }
+    .generate-btn {
+      background: linear-gradient(#ffcc00, #ffaa00);
+      color: black;
+      font-weight: bold;
+      box-shadow: 0 0 20px #ffcc00;
+    }
+    .tip-btn {
+      background: linear-gradient(#00ffcc, #00ccaa);
+      color: black;
+      font-weight: bold;
+    }
+    .meme-output {
+      margin: 40px auto;
+      padding: 30px;
+      background: #111133;
+      border: 6px solid #ffcc00;
+      border-radius: 20px;
+      min-height: 280px;
+      box-shadow: 0 0 30px rgba(255, 204, 0, 0.5);
+    }
+    .doge { font-size: 5rem; margin: 10px 0; }
+    footer {
+      margin-top: 50px;
+      color: #666;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>DogeTipper AI 🐕💰</h1>
+    <p class="tagline">Much Meme • Very Tip • So Instant</p>
+    
+    <textarea id="inputText" placeholder="Paste text or tweet here..."></textarea>
+    
+    <button class="generate-btn" onclick="generateMeme()">🚀 GENERATE MEME</button>
+    <button class="tip-btn" onclick="sendTip()">💰 TIP NOW</button>
+
+    <div id="output" class="meme-output">
+      <p>Your epic Doge meme will appear here...</p>
+    </div>
+
+    <footer>
+      Made for the Doge Community • First Version
+    </footer>
+  </div>
+
+  <script>
+    function generateMeme() {
+      const text = document.getElementById('inputText').value.trim();
+      const output = document.getElementById('output');
+      
+      if (!text) {
+        output.innerHTML = `<p style="color:#ff6666">🐕 WOW! Enter some text first...</p>`;
+        return;
+      }
+
+      output.innerHTML = `
+        <p class="doge">🐕</p>
+        <p style="font-size:1.5rem; font-weight:bold; color:#ffcc00;">${text}</p>
+        <p style="color:#00ffcc; margin:20px 0;">"Such wisdom. Very tip. Much AI!"</p>
+        <p style="margin-top:25px; color:#aaa;">
+          Tip this creation → <strong>D5z8yM7E4hqKKSeota4K6PwictgtW7nprJ</strong>
+        </p>
+      `;
+    }
+
+    function sendTip() {
+      window.open('https://dogecoin.com', '_blank');
+      alert("💰 Open your Doge wallet and send to your address!\n\n(We'll add real payment links soon)");
+    }
+  </script>
+</body>
+</html>
