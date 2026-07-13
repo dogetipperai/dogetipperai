@@ -3,142 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DogeTipper AI - Instant Doge Memes & Tips</title>
+  <title>DogeTipper AI 🐕💰</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
-    
     body {
       font-family: 'VT323', monospace;
       background: #0a0a1f;
       color: #fff;
-      text-align: center;
       margin: 0;
-      padding: 40px 20px;
-      background-image: linear-gradient(rgba(255,204,0,0.1), rgba(0,255,204,0.1));
+      padding: 30px 20px;
     }
-    .header {
-      margin-bottom: 40px;
-    }
-    h1 {
-      font-family: 'Press Start 2P', cursive;
-      font-size: 3.8rem;
-      color: #ffcc00;
-      text-shadow: 0 0 30px #ffcc00;
-      margin: 0;
-    }
-    .subtitle {
-      font-size: 1.8rem;
-      color: #00ffcc;
-      margin: 10px 0 30px 0;
-    }
-    .input-area {
-      max-width: 700px;
-      margin: 0 auto 30px;
-    }
-    textarea {
-      width: 100%;
-      height: 180px;
-      padding: 25px;
-      font-size: 1.4rem;
-      background: #1c1c3c;
-      border: 6px solid #ffcc00;
-      border-radius: 16px;
-      color: #fff;
+    h1 { font-family: 'Press Start 2P', cursive; font-size: 3.2rem; color: #ffcc00; text-shadow: 0 0 25px #ffcc00; }
+    .subtitle { color: #00ffcc; font-size: 1.6rem; margin-bottom: 30px; }
+    select, textarea, button {
       font-family: 'VT323', monospace;
+      font-size: 1.3rem;
     }
-    .buttons {
-      margin: 25px 0;
-    }
+    .mode-select { margin: 20px 0; }
+    textarea { width: 100%; max-width: 800px; height: 150px; padding: 20px; background: #1c1c3c; border: 5px solid #ffcc00; border-radius: 12px; color: white; }
     button {
-      padding: 18px 50px;
-      font-size: 1.5rem;
-      font-family: 'Press Start 2P', cursive;
+      padding: 15px 40px;
       margin: 10px;
       border-radius: 50px;
       cursor: pointer;
-      transition: all 0.3s;
+      font-size: 1.4rem;
     }
-    .generate-btn {
-      background: #ffcc00;
-      color: black;
-      box-shadow: 0 0 30px #ffcc00;
-    }
-    .tip-btn {
-      background: #00ffcc;
-      color: black;
-      box-shadow: 0 0 30px #00ffcc;
-    }
+    .generate { background: #ffcc00; color: black; }
+    .tip { background: #00ffcc; color: black; }
     .output {
-      max-width: 700px;
+      max-width: 800px;
       margin: 40px auto;
-      padding: 40px 30px;
+      padding: 30px;
       background: #1c1c3c;
-      border: 8px solid #ffcc00;
-      border-radius: 20px;
-      min-height: 340px;
-      box-shadow: 0 0 50px rgba(255, 204, 0, 0.5);
+      border: 6px solid #ffcc00;
+      border-radius: 16px;
+      min-height: 300px;
+      text-align: left;
     }
-    .doge {
-      font-size: 7rem;
-      margin: 10px 0;
-      animation: bounce 1.5s infinite;
-    }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-    }
-    footer {
-      margin-top: 70px;
-      color: #666;
-      font-size: 1.1rem;
-    }
+    .doge { font-size: 5rem; }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>DogeTipper AI</h1>
-    <p class="subtitle">🐕 Much Meme • Very Tip • So AI</p>
+  <h1>DogeTipper AI</h1>
+  <p class="subtitle">🐕 Create • Meme • Work • School • Projects • Games</p>
+
+  <div class="mode-select">
+    <select id="mode">
+      <option value="meme">Doge Meme Generator</option>
+      <option value="work">Work / School Helper</option>
+      <option value="project">Project Idea Generator</option>
+      <option value="game">Game Idea Creator</option>
+      <option value="motivate">Doge Motivation</option>
+    </select>
   </div>
 
-  <div class="input-area">
-    <textarea id="inputText" placeholder="Paste any text or tweet here..."></textarea>
-  </div>
+  <textarea id="inputText" placeholder="Enter your idea or topic..."></textarea><br><br>
 
-  <div class="buttons">
-    <button class="generate-btn" onclick="generateMeme()">🚀 GENERATE MEME</button>
-    <button class="tip-btn" onclick="sendTip()">💰 SEND TIP</button>
-  </div>
+  <button class="generate" onclick="generate()">🚀 GENERATE WITH DOGE POWER</button>
+  <button class="tip" onclick="sendTip()">💰 TIP THE PACK</button>
 
   <div id="output" class="output">
-    <p>Your awesome Doge meme will appear here...</p>
+    <p>Select a mode and describe what you want...</p>
   </div>
 
-  <footer>
-    Built for the Doge Community • Your tips support development 🐕
-  </footer>
-
   <script>
-    function generateMeme() {
-      const text = document.getElementById('inputText').value.trim();
+    const dogeAddress = "D5z8yM7E4hqKKSeota4K6PwictgtW7nprJ";
+
+    function generate() {
+      const mode = document.getElementById('mode').value;
+      const input = document.getElementById('inputText').value.trim();
       const output = document.getElementById('output');
-      
-      if (!text) {
-        output.innerHTML = `<p style="color:#ff6666; font-size:1.6rem;">🐕 WOW! Please enter some text first...</p>`;
+
+      if (!input) {
+        output.innerHTML = `<p style="color:#ff6666">🐕 Wow! Tell me what you want to create...</p>`;
         return;
       }
 
-      output.innerHTML = `
-        <p class="doge">🐕</p>
-        <p style="font-size:2rem; color:#ffdd55; line-height:1.4;">${text}</p>
-        <p style="color:#00ffcc; font-size:1.6rem; margin:30px 0;">"Such wisdom. Very tip. Much AI!"</p>
-      `;
+      let result = `<p class="doge">🐕</p>`;
+
+      if (mode === "meme") {
+        result += `<p><strong>Doge Meme:</strong> "${input}"</p><p>Such ${input.toLowerCase()}. Very wow. To the moon! 🌕</p>`;
+      } else if (mode === "work") {
+        result += `<p><strong>Work/School Idea:</strong> ${input}</p><p>Doge suggests: Make it simple, make it fast, add memes to your presentation!</p>`;
+      } else if (mode === "project") {
+        result += `<p><strong>Project Idea:</strong> ${input} + Doge theme</p><p>Build a Doge-themed version. Much community. Very viral.</p>`;
+      } else if (mode === "game") {
+        result += `<p><strong>Game Concept:</strong> ${input}</p><p>Doge character collects coins while avoiding bears. To the moon level!</p>`;
+      } else if (mode === "motivate") {
+        result += `<p><strong>Doge Motivation:</strong></p><p>${input}? You got this! Such determination. Very success. Hold strong! 🐕</p>`;
+      }
+
+      output.innerHTML = result;
     }
 
     function sendTip() {
-      const dogeAddress = "D5z8yM7E4hqKKSeota4K6PwictgtW7nprJ";
-      const message = `💰 Send your Doge to:\n\n${dogeAddress}\n\nThank you for supporting DogeTipper AI! 🐕`;
-      
-      alert(message);
+      alert(`💰 Support DogeTipper AI:\n\n${dogeAddress}\n\nThank you! Much love from the pack 🐕`);
       navigator.clipboard.writeText(dogeAddress);
     }
   </script>
