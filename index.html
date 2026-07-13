@@ -2,91 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Doge Pac-Man 🐕🍖</title>
+  <title>Doge City 2026 🏙️🐕</title>
   <style>
-    body { margin:0; background:#000; color:#fff; font-family:'Press Start 2P', cursive; text-align:center; }
-    canvas { image-rendering: pixelated; border: 8px solid #ffcc00; margin:20px auto; display:block; background:#000; }
-    h1 { color:#ffcc00; text-shadow:0 0 20px #ffcc00; }
-    button { padding:15px 40px; margin:10px; font-size:1.3rem; background:#ffcc00; color:black; border:none; cursor:pointer; }
+    body { margin:0; overflow:hidden; background:#000; }
+    #info { position:absolute; top:10px; left:10px; color:white; font-family:Arial; background:rgba(0,0,0,0.5); padding:10px; }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 </head>
 <body>
-  <h1>DOGE PAC-MAN 🐕</h1>
-  <div>Score: <span id="score">0</span> | High: <span id="high">0</span></div>
-  <canvas id="game" width="560" height="620"></canvas><br>
-  <button onclick="startGame()">NEW GAME</button>
-  <button onclick="sendTip()">💰 TIP THE DOGE</button>
-
+  <div id="info">
+    DOGE CITY 🏙️<br>
+    WASD or Arrow Keys to move • Mouse to look around
+  </div>
   <script>
-    const canvas = document.getElementById('game');
-    const ctx = canvas.getContext('2d');
-    let score = 0;
-    let highScore = localStorage.getItem('dogePacHigh') || 0;
-    document.getElementById('high').textContent = highScore;
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x112233);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-    const dogeAddress = "D5z8yM7E4hqKKSeota4K6PwictgtW7nprJ";
+    // Lights
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(50, 100, 50);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0x404040));
 
-    let x = 280, y = 460, dir = 'right';
-    let scoreVal = 0;
+    // Ground
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(500, 500),
+      new THREE.MeshLambertMaterial({color: 0x223322})
+    );
+    ground.rotation.x = -Math.PI / 2;
+    scene.add(ground);
 
-    function startGame() {
-      scoreVal = 0;
-      document.getElementById('score').textContent = 0;
-      alert("Use Arrow Keys to move Doge!\nEat the coins! 🐕");
-      gameLoop();
+    // Buildings
+    function createBuilding(x, z, height, color) {
+      const building = new THREE.Mesh(
+        new THREE.BoxGeometry(20, height, 20),
+        new THREE.MeshLambertMaterial({color: color})
+      );
+      building.position.set(x, height/2, z);
+      scene.add(building);
     }
 
-    function sendTip() {
-      alert(`Thanks for playing Doge Pac-Man!\n\n${dogeAddress}`);
-      navigator.clipboard.writeText(dogeAddress);
-    }
-
-    function gameLoop() {
-      ctx.fillStyle = '#000033';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Maze walls (simple)
-      ctx.fillStyle = '#00f';
-      ctx.fillRect(40, 40, 480, 20);
-      ctx.fillRect(40, 560, 480, 20);
-
-      // Doge
-      ctx.fillStyle = '#ffcc00';
-      ctx.beginPath();
-      ctx.arc(x, y, 18, 0, Math.PI*2);
-      ctx.fill();
-
-      // Coins
-      ctx.fillStyle = '#ff0';
-      for (let i = 0; i < 8; i++) {
-        ctx.fillRect(80 + i*60, 200, 12, 12);
+    // Create city
+    for (let i = -5; i < 6; i++) {
+      for (let j = -5; j < 6; j++) {
+        if (Math.random() > 0.3) {
+          createBuilding(i*35, j*35, 30 + Math.random()*80, Math.random() > 0.5 ? 0x4444aa : 0xaa4444);
+        }
       }
-
-      // Movement
-      if (dir === 'right') x += 4;
-      if (dir === 'left') x -= 4;
-      if (dir === 'up') y -= 4;
-      if (dir === 'down') y += 4;
-
-      // Score
-      scoreVal += 1;
-      document.getElementById('score').textContent = scoreVal;
-
-      if (scoreVal > highScore) {
-        highScore = scoreVal;
-        localStorage.setItem('dogePacHigh', highScore);
-        document.getElementById('high').textContent = highScore;
-      }
-
-      requestAnimationFrame(gameLoop);
     }
 
-    document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowRight') dir = 'right';
-      if (e.key === 'ArrowLeft') dir = 'left';
-      if (e.key === 'ArrowUp') dir = 'up';
-      if (e.key === 'ArrowDown') dir = 'down';
+    camera.position.set(0, 40, 80);
+    camera.lookAt(0, 0, 0);
+
+    let move = {};
+    document.addEventListener('keydown', e => move[e.key.toLowerCase()] = true);
+    document.addEventListener('keyup', e => move[e.key.toLowerCase()] = false);
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (move['w'] || move['arrowup']) camera.position.z -= 1;
+      if (move['s'] || move['arrowdown']) camera.position.z += 1;
+      if (move['a'] || move['arrowleft']) camera.position.x -= 1;
+      if (move['d'] || move['arrowright']) camera.position.x += 1;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
     });
   </script>
 </body>
