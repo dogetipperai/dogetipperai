@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Doge Defender 🐕🚀</title>
   <style>
-    body { margin:0; background:#000; color:#fff; font-family:'Press Start 2P', cursive; text-align:center; overflow:hidden; }
-    canvas { image-rendering: pixelated; border: 4px solid #ffcc00; margin-top:10px; }
+    body { margin:0; background:#000; color:#fff; font-family:'Press Start 2P', cursive; text-align:center; }
+    canvas { image-rendering: pixelated; border: 6px solid #ffcc00; margin:15px auto; display:block; }
     h1 { color:#ffcc00; text-shadow:0 0 20px #ffcc00; margin:10px; }
-    .score { font-size:1.4rem; color:#00ffcc; }
-    button { padding:12px 30px; margin:10px; font-size:1.2rem; background:#ffcc00; color:black; border:none; cursor:pointer; }
+    .info { font-size:1.3rem; color:#00ffcc; margin:5px; }
+    button { padding:12px 32px; margin:8px; font-size:1.2rem; background:#ffcc00; color:black; border:none; cursor:pointer; }
   </style>
 </head>
 <body>
   <h1>DOGE DEFENDER 🐕🚀</h1>
-  <div class="score">Score: <span id="score">0</span> | High: <span id="high">0</span></div>
-  <canvas id="game" width="600" height="500"></canvas><br>
-  <button onclick="startGame()">🚀 START GAME</button>
+  <div class="info">Score: <span id="score">0</span> | High: <span id="high">0</span></div>
+  <canvas id="game" width="640" height="520"></canvas><br>
+  <button onclick="startGame()">🚀 NEW GAME</button>
   <button onclick="sendTip()">💰 TIP THE DOGE</button>
 
   <script>
@@ -26,93 +26,100 @@
     let highScore = localStorage.getItem('dogeHigh') || 0;
     document.getElementById('high').textContent = highScore;
 
-    let dogeX = 280;
+    let dogeX = 290;
     let bullets = [];
     let enemies = [];
     let gameRunning = false;
+    let speedMultiplier = 1;
+
+    const dogeAddress = "D5z8yM7E4hqKKSeota4K6PwictgtW7nprJ";
 
     function startGame() {
       score = 0;
       bullets = [];
       enemies = [];
+      speedMultiplier = 1;
       gameRunning = true;
       document.getElementById('score').textContent = 0;
       gameLoop();
     }
 
     function sendTip() {
-      const addr = "D5z8yM7E4hqKKSeota4K6PwictgtW7nprJ";
-      alert(`💰 Thanks for playing Doge Defender!\n\nSend tip to:\n${addr}\n\nMuch love from the pack 🐕`);
-      navigator.clipboard.writeText(addr);
+      alert(`💰 Thanks for playing!\n\nTip address:\n${dogeAddress}\n\nMuch wow! 🐕`);
+      navigator.clipboard.writeText(dogeAddress);
     }
 
-    // Game Loop
     function gameLoop() {
       if (!gameRunning) return;
 
-      ctx.fillStyle = '#000';
+      ctx.fillStyle = '#0a001f';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw Doge
+      // Doge
       ctx.fillStyle = '#ffcc00';
-      ctx.fillRect(dogeX, 420, 60, 40); // body
+      ctx.fillRect(dogeX, 440, 70, 50);
       ctx.fillStyle = '#fff';
-      ctx.fillRect(dogeX+15, 410, 30, 20); // head
+      ctx.fillRect(dogeX+20, 425, 35, 25);
 
       // Bullets
-      bullets.forEach((b,i) => {
-        b.y -= 8;
-        ctx.fillStyle = '#00ffcc';
-        ctx.fillRect(b.x, b.y, 6, 20);
+      bullets.forEach((b, i) => {
+        b.y -= 12;
+        ctx.fillStyle = '#00ffff';
+        ctx.fillRect(b.x, b.y, 8, 25);
         if (b.y < 0) bullets.splice(i,1);
       });
 
       // Enemies
-      if (Math.random() < 0.05) {
-        enemies.push({x: Math.random()*540, y: 0, type: ['BTC','ETH','SOL','PEPE'][Math.floor(Math.random()*4)]});
+      if (Math.random() < 0.04) {
+        enemies.push({x: Math.random() * 580, y: 0, speed: 3 + speedMultiplier});
       }
 
-      enemies.forEach((e,i) => {
-        e.y += 4;
-        ctx.fillStyle = '#ff4444';
-        ctx.fillRect(e.x, e.y, 40, 30);
+      enemies.forEach((e, i) => {
+        e.y += e.speed;
+        ctx.fillStyle = '#ff3366';
+        ctx.fillRect(e.x, e.y, 45, 35);
         ctx.fillStyle = '#fff';
-        ctx.fillText(e.type, e.x+5, e.y+20);
+        ctx.font = '20px Arial';
+        ctx.fillText('🚀', e.x+10, e.y+28);
 
-        if (e.y > 450) {
+        // Collision with bullets
+        bullets.forEach((b, j) => {
+          if (b.x > e.x && b.x < e.x+45 && b.y > e.y && b.y < e.y+35) {
+            bullets.splice(j,1);
+            enemies.splice(i,1);
+            score += 20;
+            document.getElementById('score').textContent = score;
+            if (score % 200 === 0) speedMultiplier += 0.3; // Increase difficulty
+          }
+        });
+
+        if (e.y > 480) {
           gameRunning = false;
           if (score > highScore) {
             highScore = score;
             localStorage.setItem('dogeHigh', highScore);
+            document.getElementById('high').textContent = highScore;
           }
-          alert(`Game Over! Score: ${score}\n\nTip the Doge to play again? 🐕`);
+          alert(`💥 Game Over!\nScore: ${score}\n\nTip the Doge to defend again? 🐕`);
         }
-
-        // Collision
-        bullets.forEach((b,j) => {
-          if (b.x > e.x && b.x < e.x+40 && b.y > e.y && b.y < e.y+30) {
-            bullets.splice(j,1);
-            enemies.splice(i,1);
-            score += 10;
-            document.getElementById('score').textContent = score;
-          }
-        });
       });
 
       requestAnimationFrame(gameLoop);
     }
 
-    // Controls
+    // Keyboard Controls
     document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowLeft') dogeX -= 25;
-      if (e.key === 'ArrowRight') dogeX += 25;
-      if (e.key === ' ') bullets.push({x: dogeX+25, y: 420});
+      if (e.key === 'ArrowLeft' || e.key === 'a') dogeX -= 35;
+      if (e.key === 'ArrowRight' || e.key === 'd') dogeX += 35;
+      if (e.key === ' ' || e.key === 'Enter') bullets.push({x: dogeX + 30, y: 430});
     });
 
-    // Touch support for mobile
-    let touching = false;
+    // Mouse / Touch Controls
+    canvas.addEventListener('mousemove', e => {
+      dogeX = e.offsetX - 35;
+    });
     canvas.addEventListener('touchmove', e => {
-      dogeX = e.touches[0].clientX - canvas.offsetLeft - 30;
+      dogeX = e.touches[0].clientX - canvas.offsetLeft - 35;
     });
   </script>
 </body>
