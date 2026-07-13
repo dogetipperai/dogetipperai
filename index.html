@@ -3,102 +3,117 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DogeTipper AI 🐕💰</title>
+  <title>Doge Defender 🐕🚀</title>
   <style>
-    body {
-      font-family: 'VT323', monospace;
-      background: #0a0a1f;
-      color: #fff;
-      margin: 0;
-      padding: 30px 20px;
-    }
-    h1 { font-family: 'Press Start 2P', cursive; font-size: 3.2rem; color: #ffcc00; text-shadow: 0 0 25px #ffcc00; }
-    .subtitle { color: #00ffcc; font-size: 1.6rem; margin-bottom: 30px; }
-    select, textarea, button {
-      font-family: 'VT323', monospace;
-      font-size: 1.3rem;
-    }
-    .mode-select { margin: 20px 0; }
-    textarea { width: 100%; max-width: 800px; height: 150px; padding: 20px; background: #1c1c3c; border: 5px solid #ffcc00; border-radius: 12px; color: white; }
-    button {
-      padding: 15px 40px;
-      margin: 10px;
-      border-radius: 50px;
-      cursor: pointer;
-      font-size: 1.4rem;
-    }
-    .generate { background: #ffcc00; color: black; }
-    .tip { background: #00ffcc; color: black; }
-    .output {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 30px;
-      background: #1c1c3c;
-      border: 6px solid #ffcc00;
-      border-radius: 16px;
-      min-height: 300px;
-      text-align: left;
-    }
-    .doge { font-size: 5rem; }
+    body { margin:0; background:#000; color:#fff; font-family:'Press Start 2P', cursive; text-align:center; overflow:hidden; }
+    canvas { image-rendering: pixelated; border: 4px solid #ffcc00; margin-top:10px; }
+    h1 { color:#ffcc00; text-shadow:0 0 20px #ffcc00; margin:10px; }
+    .score { font-size:1.4rem; color:#00ffcc; }
+    button { padding:12px 30px; margin:10px; font-size:1.2rem; background:#ffcc00; color:black; border:none; cursor:pointer; }
   </style>
 </head>
 <body>
-  <h1>DogeTipper AI</h1>
-  <p class="subtitle">🐕 Create • Meme • Work • School • Projects • Games</p>
-
-  <div class="mode-select">
-    <select id="mode">
-      <option value="meme">Doge Meme Generator</option>
-      <option value="work">Work / School Helper</option>
-      <option value="project">Project Idea Generator</option>
-      <option value="game">Game Idea Creator</option>
-      <option value="motivate">Doge Motivation</option>
-    </select>
-  </div>
-
-  <textarea id="inputText" placeholder="Enter your idea or topic..."></textarea><br><br>
-
-  <button class="generate" onclick="generate()">🚀 GENERATE WITH DOGE POWER</button>
-  <button class="tip" onclick="sendTip()">💰 TIP THE PACK</button>
-
-  <div id="output" class="output">
-    <p>Select a mode and describe what you want...</p>
-  </div>
+  <h1>DOGE DEFENDER 🐕🚀</h1>
+  <div class="score">Score: <span id="score">0</span> | High: <span id="high">0</span></div>
+  <canvas id="game" width="600" height="500"></canvas><br>
+  <button onclick="startGame()">🚀 START GAME</button>
+  <button onclick="sendTip()">💰 TIP THE DOGE</button>
 
   <script>
-    const dogeAddress = "D5z8yM7E4hqKKSeota4K6PwictgtW7nprJ";
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    let score = 0;
+    let highScore = localStorage.getItem('dogeHigh') || 0;
+    document.getElementById('high').textContent = highScore;
 
-    function generate() {
-      const mode = document.getElementById('mode').value;
-      const input = document.getElementById('inputText').value.trim();
-      const output = document.getElementById('output');
+    let dogeX = 280;
+    let bullets = [];
+    let enemies = [];
+    let gameRunning = false;
 
-      if (!input) {
-        output.innerHTML = `<p style="color:#ff6666">🐕 Wow! Tell me what you want to create...</p>`;
-        return;
-      }
-
-      let result = `<p class="doge">🐕</p>`;
-
-      if (mode === "meme") {
-        result += `<p><strong>Doge Meme:</strong> "${input}"</p><p>Such ${input.toLowerCase()}. Very wow. To the moon! 🌕</p>`;
-      } else if (mode === "work") {
-        result += `<p><strong>Work/School Idea:</strong> ${input}</p><p>Doge suggests: Make it simple, make it fast, add memes to your presentation!</p>`;
-      } else if (mode === "project") {
-        result += `<p><strong>Project Idea:</strong> ${input} + Doge theme</p><p>Build a Doge-themed version. Much community. Very viral.</p>`;
-      } else if (mode === "game") {
-        result += `<p><strong>Game Concept:</strong> ${input}</p><p>Doge character collects coins while avoiding bears. To the moon level!</p>`;
-      } else if (mode === "motivate") {
-        result += `<p><strong>Doge Motivation:</strong></p><p>${input}? You got this! Such determination. Very success. Hold strong! 🐕</p>`;
-      }
-
-      output.innerHTML = result;
+    function startGame() {
+      score = 0;
+      bullets = [];
+      enemies = [];
+      gameRunning = true;
+      document.getElementById('score').textContent = 0;
+      gameLoop();
     }
 
     function sendTip() {
-      alert(`💰 Support DogeTipper AI:\n\n${dogeAddress}\n\nThank you! Much love from the pack 🐕`);
-      navigator.clipboard.writeText(dogeAddress);
+      const addr = "D5z8yM7E4hqKKSeota4K6PwictgtW7nprJ";
+      alert(`💰 Thanks for playing Doge Defender!\n\nSend tip to:\n${addr}\n\nMuch love from the pack 🐕`);
+      navigator.clipboard.writeText(addr);
     }
+
+    // Game Loop
+    function gameLoop() {
+      if (!gameRunning) return;
+
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw Doge
+      ctx.fillStyle = '#ffcc00';
+      ctx.fillRect(dogeX, 420, 60, 40); // body
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(dogeX+15, 410, 30, 20); // head
+
+      // Bullets
+      bullets.forEach((b,i) => {
+        b.y -= 8;
+        ctx.fillStyle = '#00ffcc';
+        ctx.fillRect(b.x, b.y, 6, 20);
+        if (b.y < 0) bullets.splice(i,1);
+      });
+
+      // Enemies
+      if (Math.random() < 0.05) {
+        enemies.push({x: Math.random()*540, y: 0, type: ['BTC','ETH','SOL','PEPE'][Math.floor(Math.random()*4)]});
+      }
+
+      enemies.forEach((e,i) => {
+        e.y += 4;
+        ctx.fillStyle = '#ff4444';
+        ctx.fillRect(e.x, e.y, 40, 30);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(e.type, e.x+5, e.y+20);
+
+        if (e.y > 450) {
+          gameRunning = false;
+          if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('dogeHigh', highScore);
+          }
+          alert(`Game Over! Score: ${score}\n\nTip the Doge to play again? 🐕`);
+        }
+
+        // Collision
+        bullets.forEach((b,j) => {
+          if (b.x > e.x && b.x < e.x+40 && b.y > e.y && b.y < e.y+30) {
+            bullets.splice(j,1);
+            enemies.splice(i,1);
+            score += 10;
+            document.getElementById('score').textContent = score;
+          }
+        });
+      });
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Controls
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') dogeX -= 25;
+      if (e.key === 'ArrowRight') dogeX += 25;
+      if (e.key === ' ') bullets.push({x: dogeX+25, y: 420});
+    });
+
+    // Touch support for mobile
+    let touching = false;
+    canvas.addEventListener('touchmove', e => {
+      dogeX = e.touches[0].clientX - canvas.offsetLeft - 30;
+    });
   </script>
 </body>
 </html>
